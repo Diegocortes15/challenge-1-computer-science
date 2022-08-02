@@ -1,5 +1,8 @@
 package com.company;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Main {
 
     static int[][] mountainMap = {{3, 8, 7, 4}, {4, 7, 6, 3}, {2, 9, 5, 2}, {-1, 5, 1, 2}};
@@ -34,13 +37,12 @@ public class Main {
                 }
 
                 endPointMap[x][y] = true;
+                findPaths(String.valueOf(mountainMap[x][y]), new int[]{x, y});
             }
         }
     }
 
     static boolean hasSmallerNeighbor(int[] currentPos) {
-
-//        System.out.println(currentPos[0] + ", " + currentPos[1]);
 
         // West
         if (isInMap(new int[]{currentPos[0], currentPos[1] + 1})) {
@@ -69,38 +71,41 @@ public class Main {
         return mountainMap[finalPos[0]][finalPos[1]] < mountainMap[initPos[0]][initPos[1]] && mountainMap[finalPos[0]][finalPos[1]] != -1;
     }
 
-    static void findPaths(int[] pos) {
+    static ArrayList<String> foundPaths = new ArrayList<>();
+
+    static void findPaths(String path, int[] pos) {
 
         if (!hasSmallerNeighbor(pos)) {
-            System.out.println("I'm a last Point: " + mountainMap[pos[0]][pos[1]] + "(" + pos[0] + "," + pos[1] + ")");
-            return;
+            System.out.println("I'm here: " + mountainMap[pos[0]][pos[1]] + "(" + pos[0] + "," + pos[1] + ")");
+//            return String.valueOf(mountainMap[pos[0]][pos[1]]);
+            foundPaths.add(path);
         }
 
         // West
         if (isInMap(new int[]{pos[0], pos[1] + 1})) {
             if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0], pos[1] + 1})) {
-                findPaths( new int[]{pos[0], pos[1] + 1});
+                findPaths(path + "-" + mountainMap[pos[0]][pos[1] + 1], new int[]{pos[0], pos[1] + 1});
             }
         }
 
         // South
         if (isInMap(new int[]{pos[0] + 1, pos[1]})) {
             if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0] + 1, pos[1]})) {
-                findPaths( new int[]{pos[0] + 1, pos[1]});
+                findPaths(path + "-" + mountainMap[pos[0] + 1][pos[1]], new int[]{pos[0] + 1, pos[1]});
             }
         }
 
         // East
         if (isInMap(new int[]{pos[0], pos[1] - 1})) {
             if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0], pos[1] - 1})) {
-                findPaths(new int[]{pos[0], pos[1] - 1});
+                findPaths(path + "-" + mountainMap[pos[0]][pos[1] - 1], new int[]{pos[0], pos[1] - 1});
             }
         }
 
         // North
         if (isInMap(new int[]{pos[0] - 1, pos[1]})) {
             if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0] - 1, pos[1]})) {
-                findPaths( new int[]{pos[0] - 1, pos[1]});
+                findPaths(path + "-" + mountainMap[pos[0] - 1][pos[1]], new int[]{pos[0] - 1, pos[1]});
             }
         }
     }
@@ -109,6 +114,6 @@ public class Main {
         System.out.println("Challenge 1 Endava");
 
         revealEndPointMap();
-        findPaths(new int[]{2, 1});
+        System.out.println(foundPaths);
     }
 }

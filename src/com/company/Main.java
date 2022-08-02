@@ -1,45 +1,49 @@
 package com.company;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Main {
 
     static int[][] mountainMap = {{3, 8, 7, 4}, {4, 7, 6, 3}, {2, 9, 5, 2}, {-1, 5, 1, 2}};
-    static int[] dronePosition = {0, 0};
+    static boolean[][] initPointMap = new boolean[4][4];
+    static boolean[][] endPointMap = new boolean[4][4];
 
-    static void moveWest() {
-        dronePosition[1] = dronePosition[1] - 1;
-        System.out.println("Drone has moved West");
-        System.out.println(Arrays.toString(dronePosition) + ": " + mountainMap[dronePosition[0]][dronePosition[1]]);
+    static boolean isInMap(int[] posF) {
+        return posF[0] >= 0 && posF[0] < mountainMap.length && posF[1] >= 0 && posF[1] < mountainMap.length;
     }
 
-    static void moveNorth() {
-        dronePosition[0] = dronePosition[0] - 1;
-        System.out.println("Drone has moved North");
-        System.out.println(Arrays.toString(dronePosition) + ": " + mountainMap[dronePosition[0]][dronePosition[1]]);
-    }
+    static void revealEndPointMap() {
+        for (int x = 0; x < mountainMap.length; x++) {
+            for (int y = 0; y < mountainMap.length; y++) {
 
-    static void moveEast() {
-        dronePosition[1] = dronePosition[1] + 1;
-        System.out.println("Drone has moved East");
-        System.out.println(Arrays.toString(dronePosition) + ": " + mountainMap[dronePosition[0]][dronePosition[1]]);
-    }
+                // West
+                if (isInMap(new int[]{x, y + 1})) {
+                    if (mountainMap[x][y] < mountainMap[x][y + 1]) continue;
+                }
 
-    static void moveSouth() {
-        dronePosition[0] = dronePosition[0] + 1;
-        System.out.println("Drone has moved South");
-        System.out.println(Arrays.toString(dronePosition) + ": " + mountainMap[dronePosition[0]][dronePosition[1]]);
+                // South
+                if (isInMap(new int[]{x + 1, y})) {
+                    if (mountainMap[x][y] < mountainMap[x + 1][y]) continue;
+                }
+
+                // East
+                if (isInMap(new int[]{x, y - 1})) {
+                    if (mountainMap[x][y] < mountainMap[x][y - 1]) continue;
+                }
+
+                // North
+                if (isInMap(new int[]{x - 1, y})) {
+                    if (mountainMap[x][y] < mountainMap[x - 1][y]) continue;
+                }
+                endPointMap[x][y] = true;
+            }
+        }
     }
 
     public static void main(String[] args) {
         System.out.println("Challenge 1 Endava");
-
-        System.out.println(Arrays.deepToString(mountainMap)
-                .replace("],", "\n").replace(",", " |").replaceAll("[\\[\\]]", " "));
-
-        moveEast();
-        moveSouth();
-        moveWest();
-        moveNorth();
+        revealEndPointMap();
+        System.out.println(Arrays.deepToString(endPointMap).replace("],", "\n").replace(",", " |").replaceAll("[\\[\\]]", " "));
     }
 }

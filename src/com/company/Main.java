@@ -14,7 +14,7 @@ public class Main {
     static boolean[][] endPointMap;
 
     static boolean isInMap(int[] posF) {
-        return posF[0] >= 0 && posF[0] < mountainMap.length && posF[1] >= 0 && posF[1] < mountainMap.length;
+        return posF[0] >= 0 && posF[0] < xBoundary && posF[1] >= 0 && posF[1] < yBoundary;
     }
 
     //5x5
@@ -43,8 +43,8 @@ public class Main {
     };*/
 
     static void revealEndPointMap() {
-        for (int x = 0; x < mountainMap.length; x++) {
-            for (int y = 0; y < mountainMap.length; y++) {
+        for (int x = 0; x < xBoundary; x++) {
+            for (int y = 0; y < yBoundary; y++) {
 
                 // West
                 if (isInMap(new int[]{x, y + 1})) {
@@ -174,12 +174,7 @@ public class Main {
         xBoundary = mapBoundaries[0];
         yBoundary = mapBoundaries[1];
 
-        System.out.println(Arrays.deepToString(mountainMap));
-
         int[][] mapValues = new int[mapBoundaries[0]][mapBoundaries[1]];
-
-        System.out.println(xBoundary);
-        System.out.println(yBoundary);
 
         for (int j = 0; j < yBoundary; j++) {
             mapValues[j] = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
@@ -192,9 +187,7 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        scanMap("testMap.txt");
-        System.out.println((Arrays.deepToString(mountainMap)));
-
+        scanMap("map.txt");
 
         System.out.println("Challenge 1 Endava");
         revealEndPointMap();
@@ -202,6 +195,6 @@ public class Main {
         System.out.println("Traveled altitude: " + deltaHeight);
         System.out.println("Best path found: " + bestPath);
         System.out.println("Number of Paths found: " + foundPaths.size());
-        System.out.println("Best paths found: " + "\n\t" + String.join("\n\t", foundPaths));
+//        System.out.println("Best paths found: " + "\n\t" + String.join("\n\t", foundPaths));
     }
 }

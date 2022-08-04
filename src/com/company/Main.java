@@ -1,23 +1,32 @@
 package com.company;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
 
-    static boolean[][] endPointMap = new boolean[5][5];
+    static int xBoundary;
+    static int yBoundary;
+    static int[][] mountainMap = new int[xBoundary][yBoundary];
+    static boolean[][] endPointMap = new boolean[xBoundary][yBoundary];
 
     static boolean isInMap(int[] posF) {
         return posF[0] >= 0 && posF[0] < mountainMap.length && posF[1] >= 0 && posF[1] < mountainMap.length;
     }
 
-    static int[][] mountainMap = {
+    //5x5
+/*    static int[][] mountainMap = {
             {-1, 10, 5, 6, 4},
             {3, 8, 7, 4, -1},
             {4, 7, 6, 3, 4},
             {2, 9, 5, 2, 5},
             {-1, 5, 1, 2, 3}
-    };
+    };*/
 
+    //4x4
 /*
     static int[][] mountainMap = {
             {3, 8, 7, 4},
@@ -26,6 +35,7 @@ public class Main {
             {-1, 5, 1, 2}
     };*/
 
+    //3x3
     /*static int[][] mountainMap = {
             {4, 7, 6},
             {2, 9, 5},
@@ -151,7 +161,40 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
+    static Scanner readMapTxt(String txtFile) throws FileNotFoundException {
+        // pass the path to the file as a parameter
+        File file = new File(txtFile);
+        return new Scanner(file);
+    }
+
+    static void scanMap(String txtFile) throws FileNotFoundException {
+
+        Scanner sc = readMapTxt(txtFile);
+        int[] mapBoundaries = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        xBoundary = mapBoundaries[0];
+        yBoundary = mapBoundaries[1];
+
+        System.out.println(Arrays.deepToString(mountainMap));
+
+        int[][] mapValues = new int[mapBoundaries[0]][mapBoundaries[1]];
+
+        System.out.println(xBoundary);
+        System.out.println(yBoundary);
+
+        for (int j = 0; j < yBoundary; j++) {
+            mapValues[j] = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        }
+
+        mountainMap = mapValues;
+
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
+
+        scanMap("testMap.txt");
+        System.out.println((Arrays.deepToString(mountainMap)));
+
+
         System.out.println("Challenge 1 Endava");
         revealEndPointMap();
         System.out.println("Traveled length: " + maxSteps);

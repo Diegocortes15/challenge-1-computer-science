@@ -11,7 +11,7 @@ public class Main {
     static int xBoundary;
     static int yBoundary;
     static int[][] mountainMap = new int[xBoundary][yBoundary];
-    static boolean[][] endPointMap = new boolean[xBoundary][yBoundary];
+    static boolean[][] endPointMap;
 
     static boolean isInMap(int[] posF) {
         return posF[0] >= 0 && posF[0] < mountainMap.length && posF[1] >= 0 && posF[1] < mountainMap.length;
@@ -186,6 +186,7 @@ public class Main {
         }
 
         mountainMap = mapValues;
+        endPointMap = new boolean[xBoundary][yBoundary];
 
     }
 

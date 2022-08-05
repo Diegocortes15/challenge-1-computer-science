@@ -26,7 +26,7 @@ public class DroneMapAnalysis {
         this.numberPathsFound = foundPaths.size();
     }
 
-    public DroneMapAnalysis(int[][] map) throws FileNotFoundException {
+    public DroneMapAnalysis(int[][] map) {
         this.mountainMap = map;
         scanMap();
         revealEndPointMap();
@@ -50,7 +50,7 @@ public class DroneMapAnalysis {
      * 1. Use scanner object to save height and width
      * 2. Set height and width in mountainMap array
      * 3. Set height and width in endPointMap
-     * 4. Save data in the file in mountainMap array.
+     * 4. Use scanner object to save data in the file in mountainMap array.
      * */
     private void scanFileMap() throws FileNotFoundException {
 
@@ -146,22 +146,22 @@ public class DroneMapAnalysis {
             int row = i / xBoundary;
             int column = i % yBoundary;
 
-            // Check if WEST neighbour is smaller than current position
+            // Check if WEST neighbour is bigger than current position
             if (isInMap(new int[]{row, column + 1})) {
                 if (mountainMap[row][column] < mountainMap[row][column + 1]) continue;
             }
 
-            // Check if SOUTH neighbour is smaller than current position
+            // Check if SOUTH neighbour is bigger than current position
             if (isInMap(new int[]{row + 1, column})) {
                 if (mountainMap[row][column] < mountainMap[row + 1][column]) continue;
             }
 
-            // Check if EAST neighbour is smaller than current position
+            // Check if EAST neighbour is bigger than current position
             if (isInMap(new int[]{row, column - 1})) {
                 if (mountainMap[row][column] < mountainMap[row][column - 1]) continue;
             }
 
-            // Check if NORTH neighbour is smaller than current position
+            // Check if NORTH neighbour is bigger than current position
             if (isInMap(new int[]{row - 1, column})) {
                 if (mountainMap[row][column] < mountainMap[row - 1][column]) continue;
             }
@@ -179,6 +179,7 @@ public class DroneMapAnalysis {
      * */
     private void findPath(int pathHead, int[] currentPosition, String path) {
 
+        // Base condition
         // If currentPosition doesn't have smaller neighbours, then add path.
         if (!hasSmallerNeighbor(currentPosition)) {
             foundPaths.add(path);

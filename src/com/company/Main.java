@@ -19,6 +19,7 @@ public class Main {
 
         DroneMapAnalysis droneMapAnalysis2 = new DroneMapAnalysis(mountainMap);
         System.out.println(droneMapAnalysis2.printSummary());
+        System.out.println(droneMapAnalysis2.getFoundPaths());
 
     }
 }

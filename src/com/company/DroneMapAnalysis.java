@@ -34,11 +34,24 @@ public class DroneMapAnalysis {
         this.numberPathsFound = foundPaths.size();
     }
 
+
+    /**
+     * Scanner readMapTxt()
+     * Read file.txt
+     * @return Scanner object
+     * */
     private Scanner readMapTxt() throws FileNotFoundException {
         File file = new File(this.map);
         return new Scanner(file);
     }
 
+    /**
+     * scanFileMap
+     * 1. Use scanner object to save height and width
+     * 2. Set height and width in mountainMap array
+     * 3. Set height and width in endPointMap
+     * 4. Save data in the file in mountainMap array.
+     * */
     private void scanFileMap() throws FileNotFoundException {
 
         Scanner sc = readMapTxt();
@@ -47,28 +60,49 @@ public class DroneMapAnalysis {
         this.yBoundary = mapBoundaries[1];
 
         this.mountainMap = new int[xBoundary][yBoundary];
+        this.endPointMap = new boolean[xBoundary][yBoundary];
+
         for (int j = 0; j < yBoundary; j++) {
             mountainMap[j] = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
         }
-
-        this.endPointMap = new boolean[xBoundary][yBoundary];
     }
 
+    /**
+     * scanMap
+     * 1. Save height and width
+     * 2. Set height and width in endPointMap
+     * */
     private void scanMap() {
-
         this.xBoundary = mountainMap.length;
         this.yBoundary = mountainMap[0].length;
         this.endPointMap = new boolean[xBoundary][yBoundary];
     }
 
+    /**
+     * isInMap
+     * @param position the point in the map to check it.
+     * Check if the position is inside the map
+     * @return True or False
+     * */
     private boolean isInMap(int[] position) {
         return position[0] >= 0 && position[0] < xBoundary && position[1] >= 0 && position[1] < yBoundary;
     }
 
-    private boolean isAllowed(int[] initPos, int[] finalPos) {
-        return mountainMap[finalPos[0]][finalPos[1]] < mountainMap[initPos[0]][initPos[1]] && mountainMap[finalPos[0]][finalPos[1]] != -1;
+    /**
+     * isAllowed
+     * @param currentPosition current position
+     * @param nextPosition position I want to go
+     * @return True or False if nextPosition is available to go or not
+     * */
+    private boolean isAllowed(int[] currentPosition, int[] nextPosition) {
+        return mountainMap[nextPosition[0]][nextPosition[1]] < mountainMap[currentPosition[0]][currentPosition[1]] && mountainMap[nextPosition[0]][nextPosition[1]] != -1;
     }
 
+    /**
+     * isInMap
+     * @param currentPos current position
+     * @return True or False if currentPos has neighbors or not
+     * */
     private boolean hasSmallerNeighbor(int[] currentPos) {
 
         // West
@@ -101,41 +135,57 @@ public class DroneMapAnalysis {
         return false;
     }
 
+    /**
+     * revealEndPointMap
+     * Find the peak points in the map.
+     * If currentPosition doesn't have neighbours smaller than him, then it is a peak of path.
+     * */
     private void revealEndPointMap() {
 
-        for (int i = 0; i < xBoundary; i++) {
-            for (int j = 0; j < yBoundary; j++) {
+        for (int i = 0; i < xBoundary * yBoundary; i++) {
+            int row = i / xBoundary;
+            int column = i % yBoundary;
 
-                // West
-                if (isInMap(new int[]{i, j + 1})) {
-                    if (mountainMap[i][j] < mountainMap[i][j + 1]) continue;
-                }
-
-                // South
-                if (isInMap(new int[]{i + 1, j})) {
-                    if (mountainMap[i][j] < mountainMap[i + 1][j]) continue;
-                }
-
-                // East
-                if (isInMap(new int[]{i, j - 1})) {
-                    if (mountainMap[i][j] < mountainMap[i][j - 1]) continue;
-                }
-
-                // North
-                if (isInMap(new int[]{i - 1, j})) {
-                    if (mountainMap[i][j] < mountainMap[i - 1][j]) continue;
-                }
-                endPointMap[i][j] = true;
+            // Check if WEST neighbour is smaller than current position
+            if (isInMap(new int[]{row, column + 1})) {
+                if (mountainMap[row][column] < mountainMap[row][column + 1]) continue;
             }
+
+            // Check if SOUTH neighbour is smaller than current position
+            if (isInMap(new int[]{row + 1, column})) {
+                if (mountainMap[row][column] < mountainMap[row + 1][column]) continue;
+            }
+
+            // Check if EAST neighbour is smaller than current position
+            if (isInMap(new int[]{row, column - 1})) {
+                if (mountainMap[row][column] < mountainMap[row][column - 1]) continue;
+            }
+
+            // Check if NORTH neighbour is smaller than current position
+            if (isInMap(new int[]{row - 1, column})) {
+                if (mountainMap[row][column] < mountainMap[row - 1][column]) continue;
+            }
+
+            // Set current position as peak of path.
+            endPointMap[row][column] = true;
         }
     }
 
-    private void findPath(int pathHead, int[] pos, String path) {
+    /**
+     * findPath
+     * @param pathHead peak of path.
+     * @param currentPosition current position.
+     * @param path it will store path found.
+     * */
+    private void findPath(int pathHead, int[] currentPosition, String path) {
 
-        if (!hasSmallerNeighbor(pos)) {
+        // If currentPosition doesn't have smaller neighbours, then add path.
+        if (!hasSmallerNeighbor(currentPosition)) {
             foundPaths.add(path);
-            int lastPosition = mountainMap[pos[0]][pos[1]];
+            int lastPosition = mountainMap[currentPosition[0]][currentPosition[1]];
             int steps = path.replaceAll("[^-]", "").length();
+
+            // Check if a larger was found.
             if (steps > maxSteps) {
                 maxSteps = steps;
                 bestPath = path;
@@ -149,41 +199,46 @@ public class DroneMapAnalysis {
             return;
         }
 
-        // West
-        if (isInMap(new int[]{pos[0], pos[1] + 1})) {
-            if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0], pos[1] + 1})) {
-                findPath(pathHead, new int[]{pos[0], pos[1] + 1}, path + "-" + mountainMap[pos[0]][pos[1] + 1]);
+        // Looking for a route to the WEST
+        if (isInMap(new int[]{currentPosition[0], currentPosition[1] + 1})) {
+            if (isAllowed(new int[]{currentPosition[0], currentPosition[1]}, new int[]{currentPosition[0], currentPosition[1] + 1})) {
+                findPath(pathHead, new int[]{currentPosition[0], currentPosition[1] + 1}, path + "-" + mountainMap[currentPosition[0]][currentPosition[1] + 1]);
             }
         }
 
-        // South
-        if (isInMap(new int[]{pos[0] + 1, pos[1]})) {
-            if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0] + 1, pos[1]})) {
-                findPath(pathHead, new int[]{pos[0] + 1, pos[1]}, path + "-" + mountainMap[pos[0] + 1][pos[1]]);
+        // Looking for a route to the SOUTH
+        if (isInMap(new int[]{currentPosition[0] + 1, currentPosition[1]})) {
+            if (isAllowed(new int[]{currentPosition[0], currentPosition[1]}, new int[]{currentPosition[0] + 1, currentPosition[1]})) {
+                findPath(pathHead, new int[]{currentPosition[0] + 1, currentPosition[1]}, path + "-" + mountainMap[currentPosition[0] + 1][currentPosition[1]]);
             }
         }
 
-        // East
-        if (isInMap(new int[]{pos[0], pos[1] - 1})) {
-            if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0], pos[1] - 1})) {
-                findPath(pathHead, new int[]{pos[0], pos[1] - 1}, path + "-" + mountainMap[pos[0]][pos[1] - 1]);
+        // Looking for a route to the EAST
+        if (isInMap(new int[]{currentPosition[0], currentPosition[1] - 1})) {
+            if (isAllowed(new int[]{currentPosition[0], currentPosition[1]}, new int[]{currentPosition[0], currentPosition[1] - 1})) {
+                findPath(pathHead, new int[]{currentPosition[0], currentPosition[1] - 1}, path + "-" + mountainMap[currentPosition[0]][currentPosition[1] - 1]);
             }
         }
 
-        // North
-        if (isInMap(new int[]{pos[0] - 1, pos[1]})) {
-            if (isAllowed(new int[]{pos[0], pos[1]}, new int[]{pos[0] - 1, pos[1]})) {
-                findPath(pathHead, new int[]{pos[0] - 1, pos[1]}, path + "-" + mountainMap[pos[0] - 1][pos[1]]);
+        // Looking for a route to the NORTH
+        if (isInMap(new int[]{currentPosition[0] - 1, currentPosition[1]})) {
+            if (isAllowed(new int[]{currentPosition[0], currentPosition[1]}, new int[]{currentPosition[0] - 1, currentPosition[1]})) {
+                findPath(pathHead, new int[]{currentPosition[0] - 1, currentPosition[1]}, path + "-" + mountainMap[currentPosition[0] - 1][currentPosition[1]]);
             }
         }
     }
 
+    /**
+     * findPathsMap
+     * This method will take route peaks and
+     * will start to search paths from them.
+     * */
     private void findPathsMap() {
-        for (int i = 0; i < xBoundary; i++) {
-            for (int j = 0; j < yBoundary; j++) {
-                if (!endPointMap[i][j]) continue;
-                findPath(mountainMap[i][j], new int[]{i, j}, String.valueOf(mountainMap[i][j]));
-            }
+        for (int i = 0; i < xBoundary * yBoundary; i++) {
+            int row = i / xBoundary;
+            int column = i % yBoundary;
+            if (!endPointMap[row][column]) continue;
+            findPath(mountainMap[row][column], new int[]{row, column}, String.valueOf(mountainMap[row][column]));
         }
     }
 
